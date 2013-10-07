@@ -1,7 +1,11 @@
-Backbone.Handlebars
+{{view}} and {{views}}
 ===================
+**Handlebars Helpers for Backbone** _RequireJS style_
 
-Extension for better integration between [Backbone.js](http://documentcloud.github.com/backbone/) and [Handlebars.js](http://handlebarsjs.com/).
+Extension for better integration between [Backbone.js](http://documentcloud.github.com/backbone/), [Handlebars.js](http://handlebarsjs.com/), and [Require.js](http://requirejs.org).
+
+Adapted from: [backbone-handlebars](https://github.com/RStankov/backbone-handlebars)   
+Inspired by: [Soundcloud Next](http://backstage.soundcloud.com/2012/06/building-the-next-soundcloud/) *see 'Views as Components'*
 
 ### Features
 
@@ -219,6 +223,7 @@ Just copy ```lib/backone_handlebars.js``` into your project. Or if you are using
 ```
 Backbone.js - 0.9.2+
 Handlebars - 1.0.beta.6+
+Requirejs - 2.1+
 ```
 
 ### Running the tests
