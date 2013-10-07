@@ -1,8 +1,9 @@
 ###
- Backbone Handlebars
+ Backbone Handlebars via RequireJS
 
  Author: Radoslav Stankov
- Project site: https://github.com/RStankov/backbone-handlebars
+ Adapted by: Will O'Brien
+ Project site: https://github.com/will-ob/backbone-handlebars
  Licensed under the MIT License.
 ###
 
@@ -13,26 +14,38 @@ BH =
   rendered: {}
 
   postponeRender: (name, options, parentView) ->
-    viewClass = _.inject (name || '').split('.'), ((memo, fragment) -> memo[fragment] || false), window
-    throw "Invalid view name - #{name}" unless viewClass
-
-    view = new viewClass options.hash
-    view.template = options.fn if options.fn?
+    placeholderId = _.uniqueId('_bh_tmp')
+    hash = _.clone(options.hash)
+    viewDeferred = new $.Deferred
+    require([name],
+      (viewClass) =>
+        if viewClass
+          view = new viewClass hash
+          view.template = options.fn if options.fn?
+          viewDeferred.resolve(placeholderId, view)
+        else
+          viewDeferred.reject("Invalid view name - #{name}")
+      , (err)->
+        viewDeferred.reject("Invalid view name - #{name}")
+        throw "Invalid view name - #{name}"
+    )
 
     cid = (parentView || options.data.view).cid
 
     @postponed[cid] ?= []
-    @postponed[cid].push view
+    @postponed[cid].push viewDeferred.promise()
 
-    '<div id="_' + view.cid + '"></div>'
+    "<div id='#{placeholderId}'></div>"
 
   renderPostponed: (parentView) ->
     cid = parentView.cid
 
-    @rendered[cid] = _.map @postponed[parentView.cid], (view) ->
-      view.render()
-      parentView.$("#_#{view.cid}").replaceWith view.el
-      view
+    @rendered[cid] = _.map @postponed[parentView.cid], (viewPromise) ->
+      viewPromise.done( (placeholderId, view) ->
+        view.render()
+        parentView.$("##{placeholderId}").replaceWith view.el
+      )
+      viewPromise
 
     delete @postponed[cid]
 
@@ -40,7 +53,11 @@ BH =
     cid = parentView.cid
 
     if @rendered[cid]
-      _.invoke @rendered[cid], 'remove'
+      _(@rendered[cid]).each((prom) ->
+        prom.done( (id, view) ->
+          view.remove()
+        )
+      )
       delete @rendered[cid]
 
 Handlebars.registerHelper 'view', (name, options) ->

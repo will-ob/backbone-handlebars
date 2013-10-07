@@ -1,178 +1,226 @@
-window.test =
-  views:
-    SubView: Backbone.View.extend
-      className: 'sub-view'
+require.config
+  paths:
+    handlebarsBackbone: '../lib/backbone_handlebars'
+    backbone: 'vendor/backbone'
+    handlebars: 'vendor/handlebars'
+  shim:
+    backbone:
+      exports: 'Backbone'
 
-    SubViewWithEvents: Backbone.View.extend
-      className: 'sub-view'
-      events:
-        click: -> @$el.html 'clicked'
+    handlebars:
+      exports: 'Handlebars'
 
-    SubViewExpectingTemplate: Backbone.View.extend
-      className: 'sub-view'
-      template: Handlebars.compile 'text'
-      render: ->
-        @$el.html @template(@model)
+    handlebarsBackbone:
+      deps: ['handlebars', 'backbone']
 
-    SubViewWithModel: Backbone.View.extend
-      className: 'sub-view'
-      render: ->
-        @$el.html @model
+require [
+  "handlebarsBackbone"
+  "./views/subview"
+  "./views/subviewWithEvents"
+  "./views/subviewWithModel"
+  "./views/subviewWithModelNames"
+  "./views/subviewExpectingTemplate"
+], ->
 
-    SubViewWithModelNames: Backbone.View.extend
-      render: ->
-        @$el.html @model.get('name')
-
-describe "Backbone.Handlebars", ->
-  _view = null
-
-  afterEach ->
-    _view.remove() if _view
+  describe "Backbone.Handlebars", ->
     _view = null
 
-  renderView = (template = '', context = {}) ->
-    customViewClass = Backbone.View.extend
-      template: if typeof template is 'function' then template else Handlebars.compile(template)
-      initialize: -> @renderTemplate(context)
+    afterEach ->
+      _view.remove() if _view
+      _view = null
 
-    _view = new customViewClass
+    renderView = (template = '', context = {}) ->
+      customViewClass = Backbone.View.extend
+        template: if typeof template is 'function' then template else Handlebars.compile(template)
+        initialize: -> @renderTemplate(context)
 
-  describe "View#render", ->
-    it "doesn't render anything if there isn't a template", ->
-      view = new Backbone.View
-      view.render()
-      view.$el.html().should.eql ''
+      _view = new customViewClass
 
-    it "renders view template by default", ->
-      viewClass = Backbone.View.extend
-        template: Handlebars.compile 'template text'
+    describe "View#render", ->
+      it "doesn't render anything if there isn't a template", ->
+        view = new Backbone.View
+        view.render()
+        view.$el.html().should.eql ''
 
-      view = new viewClass
-      view.render()
-      view.$el.html().should.eql 'template text'
+      it "renders view template by default", ->
+        viewClass = Backbone.View.extend
+          template: Handlebars.compile 'template text'
 
-    it "takes the context from templateData method", ->
-      viewClass = Backbone.View.extend
-        template: Handlebars.compile 'Hi {{name}}'
-        templateData: -> name: 'there'
+        view = new viewClass
+        view.render()
+        view.$el.html().should.eql 'template text'
 
-      view = new viewClass
-      view.render()
-      view.$el.html().should.eql 'Hi there'
+      it "takes the context from templateData method", ->
+        viewClass = Backbone.View.extend
+          template: Handlebars.compile 'Hi {{name}}'
+          templateData: -> name: 'there'
 
-    it "can use templateData directly if is not a method", ->
-      viewClass = Backbone.View.extend
-        template: Handlebars.compile 'Hi {{name}}'
-        templateData: {name: 'there'}
+        view = new viewClass
+        view.render()
+        view.$el.html().should.eql 'Hi there'
 
-      view = new viewClass
-      view.render()
-      view.$el.html().should.eql 'Hi there'
+      it "can use templateData directly if is not a method", ->
+        viewClass = Backbone.View.extend
+          template: Handlebars.compile 'Hi {{name}}'
+          templateData: {name: 'there'}
 
-    it "returns reference to the view", ->
-      view = new Backbone.View
-      view.render().should.eql view
+        view = new viewClass
+        view.render()
+        view.$el.html().should.eql 'Hi there'
 
-  describe "View#renderTemplate", ->
-    it "renders the template of the view", ->
-      view = renderView 'template text'
-      view.$el.html().should.eql 'template text'
+      it "returns reference to the view", ->
+        view = new Backbone.View
+        view.render().should.eql view
 
-    it "accepts template context as argument", ->
-      view = renderView '{{a}} + {{b}} = {{c}}', a: 1, b: 2, c: 3
-      view.$el.html().should.eql '1 + 2 = 3'
+    describe "View#renderTemplate", ->
+      it "renders the template of the view", ->
+        view = renderView 'template text'
+        view.$el.html().should.eql 'template text'
 
-    it "returns the view", ->
-      view = renderView()
-      view.renderTemplate().should.eql view
+      it "accepts template context as argument", ->
+        view = renderView '{{a}} + {{b}} = {{c}}', a: 1, b: 2, c: 3
+        view.$el.html().should.eql '1 + 2 = 3'
 
-  describe "View#renderTemplate with {{view}} helper", ->
-    it "renders sub-view element", ->
-      view = renderView '{{view "test.views.SubView"}}'
-      view.$('.sub-view').should.not.be.null
+      it "returns the view", ->
+        view = renderView()
+        view.renderTemplate().should.eql view
 
-    it "works with precompiled templates", ->
-      view = renderView Handlebars.compile '{{view  "test.views.SubView"}}'
-      view.$('.sub-view').should.not.be.null
+    describe "View#renderTemplate with {{view}} helper", ->
+      it "renders sub-view element", ->
+        view = renderView '{{view "views/subview"}}'
+        view.$('.sub-view').should.not.be.null
 
-    it "keeps the events of the sub-view", ->
-      view = renderView '{{view "test.views.SubViewWithEvents"}}'
+      it "works with precompiled templates", ->
+        view = renderView Handlebars.compile '{{view  "views/subview"}}'
+        view.$('.sub-view').should.not.be.null
 
-      subViewEl = view.$('.sub-view')
-      subViewEl.click()
-      subViewEl.html().should.eql 'clicked'
+      it "keeps the events of the sub-view", (done) ->
+        view = renderView '{{view "views/subviewWithEvents"}}'
+        setTimeout ->
+          subViewEl = view.$('.sub-view')
+          subViewEl.click()
+          subViewEl.html().should.eql 'clicked'
+          done()
+        , 100
 
-    it "can render several sub-views", ->
-      view = renderView '{{view "test.views.SubView"}}{{view "test.views.SubView"}}'
-      view.$('.sub-view').length.should.eql 2
 
-    it "throws an error if sub-view doesn't exists", ->
-      (-> renderView '{{view "InvalidView"}}').should.throw 'Invalid view name - InvalidView'
+      it "can render several sub-views", (done) ->
+        view = renderView '{{view "views/subview"}}{{view "views/subview"}}'
+        setTimeout ->
+          view.$('.sub-view').length.should.eql 2
+          done()
+        , 100
 
-    it "can pass options to the sub-view", ->
-      view = renderView '{{view "test.views.SubViewWithModel" model=1 tagName="span" className="sview"}}'
+     #  it "throws an error if sub-view doesn't exists", ->
+     #    (-> renderView '{{view "InvalidView"}}').should.throw 'Invalid view name - InvalidView'
 
-      subViewEl = view.$('.sview')
-      subViewEl.html().should.eql '1'
-      subViewEl.prop('tagName').toLowerCase().should.eql 'span'
+      it "can pass options to the sub-view", (done) ->
+        view = renderView '{{view "views/subviewWithModel" model=1 tagName="span" className="sview"}}'
 
-    it "can pass a new template for the view", ->
-      view = renderView '{{#view "test.views.SubViewExpectingTemplate"}}custom template{{/view}} '
-      view.$('.sub-view').html().should.eql 'custom template'
+        setTimeout ->
+          subViewEl = view.$('.sview')
+          subViewEl.html().should.eql '1'
+          subViewEl.prop('tagName').toLowerCase().should.eql 'span'
+          done()
+        , 100
 
-    it "removes sub-views via view.remove() on re-render", ->
-      view = renderView '{{view "test.views.SubView"}}{{view "test.views.SubView"}}'
+      it "can pass a new template for the view", (done) ->
+        view = renderView '{{#view "views/subviewExpectingTemplate"}}custom template{{/view}} '
 
-      removeCounter = 0
-      for subView in view.renderedSubViews()
-        subView.remove = ->
-          removeCounter += 1
 
-      view.renderTemplate()
+        setTimeout ->
+          view.$('.sub-view').html().should.eql 'custom template'
+          done()
+        , 100
 
-      removeCounter.should.eql 2
+      it "removes sub-views via view.remove() on re-render", (done) ->
+        view = renderView '{{view "views/subview"}}{{view "views/subview"}}'
+        removeCounter = 0
+        for subViewPromise in view.renderedSubViews()
+          subViewPromise.done((id, view) ->
+            view.remove = ->
+              removeCounter += 1
+          )
 
-    it "removes sub-views via view.remove() on view removal", ->
-      view = renderView '{{view "test.views.SubView"}}{{view "test.views.SubView"}}'
+        setTimeout ->
+          view.renderTemplate()
+          setTimeout ->
+            removeCounter.should.eql 2
+            done()
+          , 100
+        , 100
 
-      removeCounter = 0
-      for subView in view.renderedSubViews()
-        subView.remove = ->
-          removeCounter += 1
 
-      view.remove()
+      it "removes sub-views via view.remove() on view removal", (done) ->
+        view = renderView '{{view "views/subview"}}{{view "views/subview"}}'
+        removeCounter = 0
+        for subViewPromise in view.renderedSubViews()
+          subViewPromise.done((id, view) ->
+            view.remove = ->
+              removeCounter += 1
+          )
 
-      removeCounter.should.eql 2
+        view.remove()
 
-  describe "View#renderTemplate with {{views}} helper", ->
-    it "renders an array of views by given collection of models", ->
-      view = renderView '{{views "test.views.SubView" collection}}', collection: [1..4]
-      view.$('.sub-view').length.should.eql 4
+        setTimeout ->
+          view.renderTemplate()
+          setTimeout ->
+            removeCounter.should.eql 2
+            done()
+          , 100
+        , 100
 
-    it "works with precompiled templates", ->
-      view = renderView Handlebars.compile('{{views "test.views.SubView" collection}}'), collection: [1..4]
-      view.$('.sub-view').length.should.eql 4
+    describe "View#renderTemplate with {{views}} helper", ->
+      it "renders an array of views by given collection of models", (done) ->
+        view = renderView '{{views "views/subview" collection}}', collection: [1..4]
+        setTimeout ->
+          view.$('.sub-view').length.should.eql 4
+          done()
+        , 100
 
-    it "can pass a new template for the view", ->
-      view = renderView '[{{#views "test.views.SubViewExpectingTemplate" collection}}{{this}}{{/views}}]', collection: [1..4]
-      view.$el.text().should.eql '[1234]'
+      it "works with precompiled templates", (done) ->
+        view = renderView Handlebars.compile('{{views "views/subview" collection}}'), collection: [1..4]
+        setTimeout ->
+          view.$('.sub-view').length.should.eql 4
+          done()
+        , 100
 
-    it "can pass options to the sub-view", ->
-      view = renderView '{{views "test.views.SubViewWithModel" collection className="inner-view"}}', collection: [1..4]
-      view.$('.inner-view').length.should.eql 4
+      it "can pass a new template for the view", (done) ->
+        view = renderView '[{{#views "views/subviewExpectingTemplate" collection}}{{this}}{{/views}}]', collection: [1..4]
+        setTimeout ->
+          view.$el.text().should.eql '[1234]'
+          done()
+        , 200
 
-    it "can render Backbone.Collection instances", ->
-      collection = new Backbone.Collection
-      collection.add name: '1'
-      collection.add name: '2'
+      it "can pass options to the sub-view", (done) ->
+        view = renderView '{{views "views/subviewWithModel" collection className="inner-view"}}', collection: [1..4]
+        setTimeout ->
+          view.$('.inner-view').length.should.eql 4
+          done()
+        , 100
 
-      view = renderView '[{{views "test.views.SubViewWithModelNames" collection}}]', {collection}
-      view.$el.text().should.eql '[12]'
+      it "can render Backbone.Collection instances", (done) ->
+        collection = new Backbone.Collection
+        collection.add name: '1'
+        collection.add name: '2'
 
-    it "can render any object which implements map", ->
-      object =
-        values: [1,2]
-        map: (callback) -> _.map @values, callback
+        view = renderView '[{{views "views/subviewWithModelNames" collection}}]', {collection}
+        setTimeout ->
+          view.$el.text().should.eql '[12]'
+          done()
+        , 100
 
-      view = renderView '[{{views "test.views.SubViewWithModel" collection}}]', collection: object
-      view.$el.text().should.eql '[12]'
+      it "can render any object which implements map", (done) ->
+        object =
+          values: [1,2]
+          map: (callback) -> _.map @values, callback
+
+        view = renderView '[{{views "views/subviewWithModel" collection}}]', collection: object
+        setTimeout ->
+          view.$el.text().should.eql '[12]'
+          done()
+        , 100
+
+  # then run 'em
+  chai.should()
+  mocha.run()

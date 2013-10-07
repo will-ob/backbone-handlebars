@@ -1,3 +1,8 @@
+Backbone.Handlebars AMD
+-----------------------
+
+* Modify view-class loading to use requirejs *will-ob*
+
 Backbone.Handlebars
 -------------------
 
