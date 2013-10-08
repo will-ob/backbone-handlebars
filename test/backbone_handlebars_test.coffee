@@ -69,26 +69,41 @@ require [
         view.render().should.eql view
 
     describe "View#renderTemplate", ->
-      it "renders the template of the view", ->
+      it "renders the template of the view", (done) ->
         view = renderView 'template text'
-        view.$el.html().should.eql 'template text'
 
-      it "accepts template context as argument", ->
+        setTimeout ->
+          view.$el.html().should.eql 'template text'
+          done()
+        , 10
+
+      it "accepts template context as argument", (done) ->
         view = renderView '{{a}} + {{b}} = {{c}}', a: 1, b: 2, c: 3
-        view.$el.html().should.eql '1 + 2 = 3'
+
+        setTimeout ->
+          view.$el.html().should.eql '1 + 2 = 3'
+          done()
+        , 10
+
 
       it "returns the view", ->
         view = renderView()
         view.renderTemplate().should.eql view
 
     describe "View#renderTemplate with {{view}} helper", ->
-      it "renders sub-view element", ->
+      it "renders sub-view element", (done) ->
         view = renderView '{{view "views/subview"}}'
-        view.$('.sub-view').should.not.be.null
+        setTimeout ->
+          view.$('.sub-view').should.not.be.null
+          done()
+        , 10
 
-      it "works with precompiled templates", ->
+      it "works with precompiled templates", (done) ->
         view = renderView Handlebars.compile '{{view  "views/subview"}}'
-        view.$('.sub-view').should.not.be.null
+        setTimeout ->
+          view.$('.sub-view').should.not.be.null
+          done()
+        , 10
 
       it "keeps the events of the sub-view", (done) ->
         view = renderView '{{view "views/subviewWithEvents"}}'
@@ -97,7 +112,7 @@ require [
           subViewEl.click()
           subViewEl.html().should.eql 'clicked'
           done()
-        , 100
+        , 10
 
 
       it "can render several sub-views", (done) ->
@@ -105,7 +120,7 @@ require [
         setTimeout ->
           view.$('.sub-view').length.should.eql 2
           done()
-        , 100
+        , 10
 
      #  it "throws an error if sub-view doesn't exists", ->
      #    (-> renderView '{{view "InvalidView"}}').should.throw 'Invalid view name - InvalidView'
@@ -118,16 +133,15 @@ require [
           subViewEl.html().should.eql '1'
           subViewEl.prop('tagName').toLowerCase().should.eql 'span'
           done()
-        , 100
+        , 10
 
       it "can pass a new template for the view", (done) ->
         view = renderView '{{#view "views/subviewExpectingTemplate"}}custom template{{/view}} '
 
-
         setTimeout ->
           view.$('.sub-view').html().should.eql 'custom template'
           done()
-        , 100
+        , 10
 
       it "removes sub-views via view.remove() on re-render", (done) ->
         view = renderView '{{view "views/subview"}}{{view "views/subview"}}'
@@ -143,8 +157,8 @@ require [
           setTimeout ->
             removeCounter.should.eql 2
             done()
-          , 100
-        , 100
+          , 10
+        , 10
 
 
       it "removes sub-views via view.remove() on view removal", (done) ->
@@ -163,8 +177,8 @@ require [
           setTimeout ->
             removeCounter.should.eql 2
             done()
-          , 100
-        , 100
+          , 10
+        , 10
 
     describe "View#renderTemplate with {{views}} helper", ->
       it "renders an array of views by given collection of models", (done) ->
@@ -172,28 +186,28 @@ require [
         setTimeout ->
           view.$('.sub-view').length.should.eql 4
           done()
-        , 100
+        , 10
 
       it "works with precompiled templates", (done) ->
         view = renderView Handlebars.compile('{{views "views/subview" collection}}'), collection: [1..4]
         setTimeout ->
           view.$('.sub-view').length.should.eql 4
           done()
-        , 100
+        , 10
 
       it "can pass a new template for the view", (done) ->
         view = renderView '[{{#views "views/subviewExpectingTemplate" collection}}{{this}}{{/views}}]', collection: [1..4]
         setTimeout ->
           view.$el.text().should.eql '[1234]'
           done()
-        , 200
+        , 10
 
       it "can pass options to the sub-view", (done) ->
         view = renderView '{{views "views/subviewWithModel" collection className="inner-view"}}', collection: [1..4]
         setTimeout ->
           view.$('.inner-view').length.should.eql 4
           done()
-        , 100
+        , 10
 
       it "can render Backbone.Collection instances", (done) ->
         collection = new Backbone.Collection
@@ -204,7 +218,7 @@ require [
         setTimeout ->
           view.$el.text().should.eql '[12]'
           done()
-        , 100
+        , 10
 
       it "can render any object which implements map", (done) ->
         object =
@@ -215,7 +229,7 @@ require [
         setTimeout ->
           view.$el.text().should.eql '[12]'
           done()
-        , 100
+        , 10
 
   # then run 'em
   chai.should()

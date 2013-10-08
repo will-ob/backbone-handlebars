@@ -19,7 +19,7 @@
     }
   });
 
-  require(["handlebarsBackbone", "./views/subview", "./views/subviewWithEvents", "./views/subviewWithModel", "./views/subviewWithModelNames", "./views/subviewExpectingTemplate"], function() {
+  require(["handlebars", "handlebarsBackbone"], function(Handlebars) {
     describe("Backbone.Handlebars", function() {
       var renderView, _view;
       _view = null;
@@ -94,19 +94,25 @@
         });
       });
       describe("View#renderTemplate", function() {
-        it("renders the template of the view", function() {
+        it("renders the template of the view", function(done) {
           var view;
           view = renderView('template text');
-          return view.$el.html().should.eql('template text');
+          return setTimeout(function() {
+            view.$el.html().should.eql('template text');
+            return done();
+          }, 10);
         });
-        it("accepts template context as argument", function() {
+        it("accepts template context as argument", function(done) {
           var view;
           view = renderView('{{a}} + {{b}} = {{c}}', {
             a: 1,
             b: 2,
             c: 3
           });
-          return view.$el.html().should.eql('1 + 2 = 3');
+          return setTimeout(function() {
+            view.$el.html().should.eql('1 + 2 = 3');
+            return done();
+          }, 10);
         });
         return it("returns the view", function() {
           var view;
@@ -115,15 +121,21 @@
         });
       });
       describe("View#renderTemplate with {{view}} helper", function() {
-        it("renders sub-view element", function() {
+        it("renders sub-view element", function(done) {
           var view;
           view = renderView('{{view "views/subview"}}');
-          return view.$('.sub-view').should.not.be["null"];
+          return setTimeout(function() {
+            view.$('.sub-view').should.not.be["null"];
+            return done();
+          }, 10);
         });
-        it("works with precompiled templates", function() {
+        it("works with precompiled templates", function(done) {
           var view;
           view = renderView(Handlebars.compile('{{view  "views/subview"}}'));
-          return view.$('.sub-view').should.not.be["null"];
+          return setTimeout(function() {
+            view.$('.sub-view').should.not.be["null"];
+            return done();
+          }, 10);
         });
         it("keeps the events of the sub-view", function(done) {
           var view;
@@ -134,7 +146,7 @@
             subViewEl.click();
             subViewEl.html().should.eql('clicked');
             return done();
-          }, 100);
+          }, 10);
         });
         it("can render several sub-views", function(done) {
           var view;
@@ -142,7 +154,7 @@
           return setTimeout(function() {
             view.$('.sub-view').length.should.eql(2);
             return done();
-          }, 100);
+          }, 10);
         });
         it("can pass options to the sub-view", function(done) {
           var view;
@@ -153,7 +165,7 @@
             subViewEl.html().should.eql('1');
             subViewEl.prop('tagName').toLowerCase().should.eql('span');
             return done();
-          }, 100);
+          }, 10);
         });
         it("can pass a new template for the view", function(done) {
           var view;
@@ -161,7 +173,7 @@
           return setTimeout(function() {
             view.$('.sub-view').html().should.eql('custom template');
             return done();
-          }, 100);
+          }, 10);
         });
         it("removes sub-views via view.remove() on re-render", function(done) {
           var removeCounter, subViewPromise, view, _i, _len, _ref;
@@ -181,8 +193,8 @@
             return setTimeout(function() {
               removeCounter.should.eql(2);
               return done();
-            }, 100);
-          }, 100);
+            }, 10);
+          }, 10);
         });
         return it("removes sub-views via view.remove() on view removal", function(done) {
           var removeCounter, subViewPromise, view, _i, _len, _ref;
@@ -203,8 +215,8 @@
             return setTimeout(function() {
               removeCounter.should.eql(2);
               return done();
-            }, 100);
-          }, 100);
+            }, 10);
+          }, 10);
         });
       });
       return describe("View#renderTemplate with {{views}} helper", function() {
@@ -216,7 +228,7 @@
           return setTimeout(function() {
             view.$('.sub-view').length.should.eql(4);
             return done();
-          }, 100);
+          }, 10);
         });
         it("works with precompiled templates", function(done) {
           var view;
@@ -226,7 +238,7 @@
           return setTimeout(function() {
             view.$('.sub-view').length.should.eql(4);
             return done();
-          }, 100);
+          }, 10);
         });
         it("can pass a new template for the view", function(done) {
           var view;
@@ -236,7 +248,7 @@
           return setTimeout(function() {
             view.$el.text().should.eql('[1234]');
             return done();
-          }, 200);
+          }, 10);
         });
         it("can pass options to the sub-view", function(done) {
           var view;
@@ -246,7 +258,7 @@
           return setTimeout(function() {
             view.$('.inner-view').length.should.eql(4);
             return done();
-          }, 100);
+          }, 10);
         });
         it("can render Backbone.Collection instances", function(done) {
           var collection, view;
@@ -263,7 +275,7 @@
           return setTimeout(function() {
             view.$el.text().should.eql('[12]');
             return done();
-          }, 100);
+          }, 10);
         });
         return it("can render any object which implements map", function(done) {
           var object, view;
@@ -279,7 +291,7 @@
           return setTimeout(function() {
             view.$el.text().should.eql('[12]');
             return done();
-          }, 100);
+          }, 10);
         });
       });
     });
