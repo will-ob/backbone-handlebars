@@ -1,0 +1,31 @@
+{
+  "name": "backbone-handlebars-amd",
+  "version": "0.0.0",
+  "homepage": "https://github.com/will-ob/backbone-handlebars-amd",
+  "authors": [
+    "Will O'Brien (will-ob)",
+    "Radoslav Stankov"
+  ],
+  "description": "Handlebars helper for AMD loading/rendering of subviews in Backbone",
+  "main": "lib/backbone_handlebars.js",
+  "keywords": [
+    "backbone",
+    "templating",
+    "requirejs",
+    "amd",
+    "handlebars"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "node_modules",
+    "bower_components"
+  ],
+  "devDependencies": {
+    "backbone": "~1.0.0",
+    "handlebars": "~1.0.0",
+    "jquery": "~2.0.3",
+    "mocha": "~1.13.0",
+    "requirejs": "~2.1.8",
+    "underscore": "~1.5.2"
+  }
+}

@@ -1,8 +1,8 @@
 require.config
   paths:
     handlebarsBackbone: '../lib/backbone_handlebars'
-    backbone: 'vendor/backbone'
-    handlebars: 'vendor/handlebars'
+    backbone: 'vendor/backbone/backbone'
+    handlebars: 'vendor/handlebars/handlebars'
   shim:
     backbone:
       exports: 'Backbone'
@@ -14,13 +14,9 @@ require.config
       deps: ['handlebars', 'backbone']
 
 require [
+  "handlebars"
   "handlebarsBackbone"
-  "./views/subview"
-  "./views/subviewWithEvents"
-  "./views/subviewWithModel"
-  "./views/subviewWithModelNames"
-  "./views/subviewExpectingTemplate"
-], ->
+], (Handlebars) ->
 
   describe "Backbone.Handlebars", ->
     _view = null
