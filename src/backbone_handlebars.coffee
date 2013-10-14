@@ -14,11 +14,11 @@ require ['handlebars', 'backbone'], (Handlebars, Backbone) ->
     postponed: {}
     rendered: {}
 
-    postponeRender: (name, options, parentView) ->
+    postponeRender: (name, options = {}, parentView) ->
       placeholderId = _.uniqueId('_bh_tmp')
       hash = _.clone(options.hash)
       viewDeferred = new $.Deferred
-      require([name],
+      (options.data?.require || require)([name],
         (viewClass) =>
           if viewClass
             view = new viewClass hash
@@ -85,7 +85,10 @@ require ['handlebars', 'backbone'], (Handlebars, Backbone) ->
     BH.clearRendered this
     context = _.clone context
     context._parentView = this
-    @$el.html @template context, data: {view: this}
+    @$el.html @template context, data: {
+      view: this
+      require: @template.require
+    }
     BH.renderPostponed this
     this
 
