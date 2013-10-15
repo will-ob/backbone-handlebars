@@ -1,6 +1,6 @@
-{{view}} and {{views}}
+{{ view(s) }}
 ===================
-**Handlebars Helpers for Backbone** _RequireJS style_
+**Handlebars Helpers for Backbone** - _RequireJS style_
 
 Extension for better integration between [Backbone.js](http://documentcloud.github.com/backbone/), [Handlebars.js](http://handlebarsjs.com/), and [Require.js](http://requirejs.org).
 

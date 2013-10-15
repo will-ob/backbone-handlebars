@@ -4,7 +4,8 @@
     paths: {
       handlebarsBackbone: '../lib/backbone_handlebars',
       backbone: 'vendor/backbone/backbone',
-      handlebars: 'vendor/handlebars/handlebars'
+      handlebars: 'vendor/handlebars/handlebars',
+      squire: 'vendor/squire/src/Squire'
     },
     shim: {
       backbone: {
@@ -19,7 +20,7 @@
     }
   });
 
-  require(["handlebars", "handlebarsBackbone"], function(Handlebars) {
+  require(["squire", "handlebars", "handlebarsBackbone"], function(Squire, Handlebars) {
     describe("Backbone.Handlebars", function() {
       var renderView, _view;
       _view = null;
@@ -121,6 +122,20 @@
         });
       });
       describe("View#renderTemplate with {{view}} helper", function() {
+        it("can require relative views", function(done) {
+          var injector, view;
+          injector = new Squire();
+          injector.mock("./subview", Backbone.View.extend({
+            className: "thing"
+          }));
+          view = renderView('{{view "views/subviewWithRelativeSubview"}}', {
+            data: require
+          });
+          return setTimeout(function() {
+            view.$('.thing').should.not.be["null"];
+            return done();
+          }, 10);
+        });
         it("renders sub-view element", function(done) {
           var view;
           view = renderView('{{view "views/subview"}}');
