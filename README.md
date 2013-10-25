@@ -9,6 +9,46 @@ Inspired by: [Soundcloud Next](http://backstage.soundcloud.com/2012/06/building-
 
 ### Features
 
+
+```
+  {{ require "./some/module" }}
+```
+
+No-op helper used by [require-handlebars](). Includes target module in optimized builds. Otherwise, r.js will not detect modlue dependencies until runtime.
+
+
+```
+  {{ view "./some/view/module-x" }}
+```
+
+Creates a new view
+
+```
+require("./some/view", (SomeViewModule) ->
+  subview = new SomeViewModule
+)
+```
+
+`{{view}}` tag replaced with `subview.el`
+
+- `events` bound whenever parent renders the template (no worry about re-binding events)
+- `view` is destroyed when parent is destroyed
+
+
+```
+  {{#view "./buttons/igniton-control" modelId="#{@id}"}}
+    <div class="firework #{@color}-firework">
+      <img src="/#{@color}-firework.png"></img>
+      <button class="js-ignite"></button>
+    </div>
+  {{/view}}
+```
+
+  -  Allow parent to define `ignition-control` 's `template`
+  - `ignition-control` defines event handler for`"click .js-ignite"`
+  - Accept `@options` that will be passed to module   
+      in this example, `@options["modelId"] == #{@id}`
+
 #### Backbone.View#renderTemplate
 
 ```javascript
