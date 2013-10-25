@@ -61,6 +61,7 @@ require ['handlebars', 'backbone'], (Handlebars, Backbone) ->
         )
         delete @rendered[cid]
 
+  Handlebars.registerHelper 'require', -> ""
   Handlebars.registerHelper 'view', (name, options) ->
     new Handlebars.SafeString BH.postponeRender(name, options, @_parentView)
 
