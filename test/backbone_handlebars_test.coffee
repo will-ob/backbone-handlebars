@@ -3,6 +3,7 @@ require.config
     handlebarsBackbone: '../lib/backbone_handlebars'
     backbone: 'vendor/backbone/backbone'
     handlebars: 'vendor/handlebars/handlebars'
+    squire: 'vendor/squire/src/Squire'
   shim:
     backbone:
       exports: 'Backbone'
@@ -14,9 +15,10 @@ require.config
       deps: ['handlebars', 'backbone']
 
 require [
+  "squire"
   "handlebars"
   "handlebarsBackbone"
-], (Handlebars) ->
+], (Squire, Handlebars) ->
 
   describe "Backbone.Handlebars", ->
     _view = null
@@ -91,6 +93,16 @@ require [
         view.renderTemplate().should.eql view
 
     describe "View#renderTemplate with {{view}} helper", ->
+      it "can require relative views", (done) ->
+        injector = new Squire()
+        injector.mock("./subview", Backbone.View.extend({className: "thing"}))
+        view = renderView '{{view "views/subviewWithRelativeSubview"}}', {data: require}
+        setTimeout ->
+          view.$('.thing').should.not.be.null
+          done()
+        , 10
+
+
       it "renders sub-view element", (done) ->
         view = renderView '{{view "views/subview"}}'
         setTimeout ->
